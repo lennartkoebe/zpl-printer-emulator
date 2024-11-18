@@ -25,7 +25,6 @@ function sendOrQueue(zpl: string) {
   };
 
   if (clients.size > 0) {
-    console.log("test2");
     sendSSEMessageToAll("print", [data]);
     return;
   }

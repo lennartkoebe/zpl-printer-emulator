@@ -91,8 +91,6 @@ export const useLabelStore = defineStore("labelStore", () => {
 
       const imgInArr = images.value.find((el) => el.key === element.key);
 
-      console.log(imgInArr);
-
       if (!imgInArr) continue;
 
       imgInArr.file = file;
