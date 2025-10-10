@@ -1,6 +1,7 @@
 type Image = {
   key: string;
-  file: string;
+  pdfUrl: string;
+  file?: string;
   loading: boolean;
   date: Date;
   zpl: string;
@@ -61,7 +62,7 @@ export const useLabelStore = defineStore("labelStore", () => {
     const elements = data.map((el) => {
       return {
         date: new Date(el.timestamp),
-        file: createImage(dpmm * wMM, dpmm * hMM),
+        pdfUrl: createImage(dpmm * wMM, dpmm * hMM),
         loading: true,
         zpl: el.zpl,
         key: crypto.randomUUID(),
@@ -74,12 +75,12 @@ export const useLabelStore = defineStore("labelStore", () => {
 
     for (let element of elements.toReversed()) {
       const res = await fetch(
-        `http://api.labelary.com/v1/printers/${dpmm}dpmm/labels/${wInch}x${hInch}/0/`,
+        `http://api.labelary.com/v1/printers/${dpmm}dpmm/labels/${wInch}x${hInch}/`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-            Accept: "image/png",
+            Accept: "application/pdf",
           },
           body: element.zpl,
         }
@@ -87,13 +88,24 @@ export const useLabelStore = defineStore("labelStore", () => {
 
       if (!res.ok) continue;
 
-      const file = await blobToDataURL(await res.blob());
+      const pdfBlob = await res.blob();
+      const file = URL.createObjectURL(pdfBlob);
 
       const imgInArr = images.value.find((el) => el.key === element.key);
 
-      if (!imgInArr) continue;
+      if (!imgInArr) {
+        URL.revokeObjectURL(file);
+        continue;
+      }
 
-      imgInArr.file = file;
+      imgInArr.pdfUrl = file; // This is now a PDF Blob URL
+
+      // Revoke previous object URL if exists
+      if (imgInArr.file && imgInArr.file.startsWith("blob:")) {
+        URL.revokeObjectURL(imgInArr.file);
+      }
+
+      imgInArr.file = file; // This is now a PDF Blob URL
       imgInArr.loading = false;
 
       await new Promise((res) => {
@@ -107,5 +119,17 @@ export const useLabelStore = defineStore("labelStore", () => {
     // });
   }
 
-  return { images, latest, current };
+  // Cleanup object URLs when removing images
+  function removeImage(key: string) {
+    const idx = images.value.findIndex((img) => img.key === key);
+    if (idx !== -1) {
+      const img = images.value[idx];
+      if (img.file && img.file.startsWith("blob:")) {
+        URL.revokeObjectURL(img.file);
+      }
+      images.value.splice(idx, 1);
+    }
+  }
+
+  return { images, latest, current, removeImage };
 });

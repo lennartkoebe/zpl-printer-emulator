@@ -120,21 +120,21 @@
       <div class="flex h-full flex-1 min-h-0 p-6 items-center justify-center">
         <div
           v-if="labelStore.current"
-          class="flex flex-col h-full flex-1 text-center items-center justify-center overflow-hidden"
+          class="flex flex-col h-full flex-1 text-center items-center justify-center overflow-auto"
         >
-          <div class="relative max-h-full min-h-0">
-            <div
-              v-if="labelStore.current.loading"
-              class="absolute inset-0 flex items-center justify-center"
-            >
-              <Icon class="text-7xl" name="eos-icons:loading" />
-            </div>
-            <img
-              :src="labelStore.current.file"
-              class="rounded-sm min-h max-w-full max-h-full object-contain shadow-md min-h-0 min-w-0"
+          <ClientOnly>
+            <PdfViewer
+              v-if="!labelStore.current.loading"
+              :src="labelStore.current.file || ''"
+              :scale="1.5"
             />
+          </ClientOnly>
+          <div
+            v-if="labelStore.current.loading"
+            class="flex items-center justify-center"
+          >
+            <Icon class="text-7xl" name="eos-icons:loading" />
           </div>
-          <!-- <div class="h-full max-h-full bg-green-300">test</div> -->
           <div class="mt-1 text-gray-600">
             {{ labelStore.current.date.toLocaleString() }}
           </div>
@@ -168,18 +168,21 @@
               class="flex flex-col h-full flex-1 text-center items-center justify-center overflow-hidden"
             >
               <div
-                class="relative grow flex items-center justify-center max-h-full min-h-0"
+                class="relative grow flex items-center justify-center max-h-full min-h-0 w-full"
               >
-                <div
-                  v-if="file.loading"
-                  class="absolute inset-0 flex items-center justify-center"
-                >
-                  <Icon class="text-4xl" name="eos-icons:loading" />
-                </div>
-                <img
-                  :src="file.file"
-                  class="rounded-sm max-w-full max-h-full object-contain shadow-md min-h-0 min-w-0"
-                />
+                <ClientOnly>
+                  <PdfThumbnail
+                    v-if="!file.loading"
+                    :src="file.file || ''"
+                    :scale="0.3"
+                  />
+                  <div
+                    v-if="file.loading"
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <Icon class="text-4xl" name="eos-icons:loading" />
+                  </div>
+                </ClientOnly>
               </div>
               <!-- <div class="h-full max-h-full bg-green-300">test</div> -->
               <div

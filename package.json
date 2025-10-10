@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck",
+    "postinstall": "nuxt prepare && cp node_modules/pdfjs-dist/build/pdf.worker.min.mjs public/pdf.worker.min.mjs",
     "docker:build": " docker build  --platform linux/amd64,linux/arm64 -t lennartkoebe/zpl-printer-emulator:latest -t lennartkoebe/zpl-printer-emulator:${npm_package_version} .",
     "docker:publish:latest": "docker push lennartkoebe/zpl-printer-emulator:latest",
     "docker:publish:version": "docker push  lennartkoebe/zpl-printer-emulator:${npm_package_version}",
@@ -16,6 +17,7 @@
   "dependencies": {
     "@vueuse/core": "^11.2.0",
     "nuxt": "^3.14.159",
+    "pdfjs-dist": "^5.4.149",
     "vue": "latest",
     "vue-router": "latest"
   },
