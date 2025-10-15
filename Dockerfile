@@ -1,4 +1,4 @@
-ARG NODE_VERSION=22.11-alpine
+ARG NODE_VERSION=22-alpine
 
 # Create build stage
 FROM node:${NODE_VERSION} AS build
@@ -14,6 +14,10 @@ WORKDIR /app
 # Copy package.json and pnpm-lock.yaml files to the working directory
 COPY ./package.json /app/
 COPY ./pnpm-lock.yaml /app/
+COPY ./pnpm-workspace.yaml /app/
+
+# Copy public directory (needed for postinstall script)
+COPY ./public /app/public
 
 ## Install dependencies
 RUN pnpm install --shamefully-hoist
